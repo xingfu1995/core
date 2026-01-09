@@ -122,12 +122,28 @@ impl Imap {
         context: &Context,
         watch_folder: String,
     ) -> Result<()> {
+        use crate::config::Config;
+
         let fake_idle_start_time = tools::Time::now();
 
-        info!(context, "IMAP-fake-IDLEing folder={:?}", watch_folder);
+        // Get configurable fake idle interval (default 30s, min 10s)
+        let interval_secs = context
+            .get_config_u32(Config::FakeIdleInterval)
+            .await?
+            .max(10);  // Minimum 10 seconds to avoid excessive server load
 
-        // Wait for 60 seconds or until we are interrupted.
-        match timeout(Duration::from_secs(60), self.idle_interrupt_receiver.recv()).await {
+        info!(
+            context,
+            "IMAP-fake-IDLEing folder={:?}, interval={}s",
+            watch_folder,
+            interval_secs
+        );
+
+        // Wait for configured interval or until we are interrupted.
+        match timeout(
+            Duration::from_secs(interval_secs.into()),
+            self.idle_interrupt_receiver.recv()
+        ).await {
             Err(_) => info!(context, "Fake IDLE finished."),
             Ok(_) => info!(context, "Fake IDLE interrupted."),
         }

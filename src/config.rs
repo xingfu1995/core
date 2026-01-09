@@ -362,6 +362,12 @@ pub enum Config {
     #[strum(props(default = "0"))]
     DisableIdle,
 
+    /// Polling interval in seconds for servers without IDLE support.
+    /// Default is 30 seconds. Minimum is 10 seconds to avoid excessive server load.
+    /// Lower values provide faster message delivery but consume more battery and bandwidth.
+    #[strum(props(default = "30"))]
+    FakeIdleInterval,
+
     /// Timestamp of the next check for donation request need.
     DonationRequestNextCheck,
 
