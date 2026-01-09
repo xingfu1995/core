@@ -228,13 +228,7 @@ impl ImapSession {
 
         // ==============  uid_validity has changed or is being set the first time.  ==============
 
-        // Force fetch from the first email when the folder is selected for the first time.
-        // This allows fetching all historical emails instead of only new ones.
-        let new_uid_next = if old_uid_validity == 0 && old_uid_next == 0 {
-            1 // Start from UID 1 to fetch all historical emails
-        } else {
-            new_uid_next.unwrap_or_default()
-        };
+        let new_uid_next = new_uid_next.unwrap_or_default();
         set_uid_next(context, folder, new_uid_next).await?;
         set_uidvalidity(context, folder, new_uid_validity).await?;
         self.new_mail = true;
